@@ -8,16 +8,16 @@ class Champion:
         self.role = role
         self.page = self._get_champ_page()
         self.truename = self._get_true_name()
-        self.items = self._get_items()
         self.runes = self._get_runes()
+        self.items = self._get_items()
+        
 
     def _get_champ_page(self):
         if self.gamemode == "5v5":
             page = requests.get(f"https://www.metasrc.com/{self.gamemode}/champion/{self.name}/{self.role}")
         elif self.gamemode == "aram":
             page = requests.get(f"https://www.metasrc.com/{self.gamemode}/champion/{self.name}")
-        goodsoup = BeautifulSoup(page.content, "html.parser")
-        return goodsoup
+        return BeautifulSoup(page.content, "html.parser")
 
     def _get_true_name(self):
         true_name_search = self.page.find("h2", class_="_fcukao")
@@ -36,14 +36,115 @@ class Champion:
         return list(dict.fromkeys(champ_items))
 
     def _get_runes(self):
-        rune_title = self.page.find("h2", class_="_fcukao", text=f"Best {self.truename} Runes")
-        rune_list = rune_title.parent.find_all("div")
-        
-        return rune_list
+        rune_title = self.page.find("h2", class_="_fcukao", text=f"Best {self.truename} Runes").parent
+        rune_list = rune_title.find_all("div", class_="_g9pb7k")
+
+        champ_runes = []
+        for obj in rune_list[0]:
+            result = obj.find_all("image", class_="lozad")
+            for r in result:
+                champ_runes.append(r["data-xlink-href"].split("/")[-1][:-4])
+            
+        champ_runes = self._runes_lookup(champ_runes)
+        return champ_runes
+    
+    def _runes_lookup(self, runes_list):
+        runes_lookup_table = {
+            "8000": "Precision",
+            "8100": "Domination",
+            "8200": "Sorcery",
+            "8300": "Inspiration",
+            "8400": "Resolve",
+
+            # Precision
+            "conqueror": "Conqueror",
+            "triumph": "Triumph",
+            "legendtenacity": "Legend: Tenacity",
+            "laststand": "Last Stand",
+            "legendalacrity": "Legend: Alacrity",
+            "coupdegrace": "Coup de Grace",
+            "presenceofmind": "Presence of Mind",
+            "lethaltempotemp": "Lethal Tempo",
+            "cutdown": "Cut Down",
+            "fleetfootwork": "Fleet Footwork",
+            "legendbloodline": "Legend: Bloodline",
+            "presstheattack": "Press The Attack",
+            "overheal": "Overheal",
+
+            # Domination
+            "greenterror_tasteofblood": "Taste of Blood",
+            "treasurehunter": "Treasure Hunter",
+            "cheapshot": "Cheap Shot",
+            "ultimatehunter": "Ultimate Hunter",
+            "eyeballcollection": "Eyeball Collection",
+            "relentlesshunter": "Relentless Hunter",
+            "hailofblades": "Hail of Blades",
+            "suddenimpact": "Sudden Impact",
+            "electrocute": "Electrocute",
+            "darkharvest": "Dark Harvest",
+            "ghostporo": "Ghost Poro",
+            "ingenioushunter": "Ingenious Hunter",
+            "predator": "Predator",
+            "zombieward": "Zombie Ward",
+
+            # Sorcery
+            "arcanecomet": "Arcane Comet",
+            "manaflowband": "Manaflow Band",
+            "transcendence": "Transcendence",
+            "scorch": "Scorch",
+            "gatheringstorm": "Gathering Storm",
+            "phaserush": "Phase Rush",
+            "summonaery": "Summon Aery",
+            "absolutefocus": "Absolute Focus",
+            "celerity": "Celerity",
+            "nimbuscloak": "Nimbus Cloak",
+            "nullifyingorb": "Nullifying Orb",
+            "waterwalking": "Water Walking",
+
+            # Inspiration
+            "cosmicinsight": "Cosmic Insight",
+            "biscuitdelivery": "Biscuit Delivery",
+            "firststrike": "First Strike",
+            "futuresmarket": "Futures Market",
+            "glacialaugment": "Glacial Augment",
+            "hextechflashtraption": "Hextech Flashtraption",
+            "magicalfootwear": "Magical Footwear",
+            "miniondematerializer": "Minion Dematerializer",
+            "perfecttiming": "Perfect Timing",
+            "timewarptonic": "Time Warp Tonic",
+            "approachvelocity": "Approach Velocity",
+
+            # Resolve
+            "veteranaftershock": "Aftershock",
+            "demolish": "Demolish",
+            "conditioning": "Conditioning",
+            "overgrowth": "Overgrowth",
+            "revitalize": "Revitalize",
+            "secondwind": "Second Wind",
+            "unflinching": "Unflinching",
+            "boneplating": "Bone Plating",
+            "fontoflife": "Font of Life",
+            "graspoftheundying": "Grasp of the Undying",
+            "guardian": "Guardian",
+
+            # Shards
+            "statmodsadaptiveforceicon": "Adaptive Force",
+            "statmodsarmoricon": "Armor",
+            "statmodsattackspeedicon": "Attack Speed",
+            "statmodscdrscalingicon": "Cooldown Reduction",
+            "statmodshealthscalingicon": "Health"
+        }
+        sanitised_runes_list = []
+        for item in runes_list:
+            if item in runes_lookup_table:
+                sanitised_runes_list.append(runes_lookup_table[item])
+            else:
+                sanitised_runes_list.append(item)
+        return sanitised_runes_list
 
 def get_list_of_champs(gamemode):
     page = requests.get(f"https://www.metasrc.com/{gamemode}")
-    goodsoup = BeautifulSoup(page.content, "html.parser")
+    HTML_content = BeautifulSoup(page.content, "html.parser")
 
     class_name = "_95ecnz champion-grid-item _4swxwm _"
     if gamemode == "aram":
@@ -51,7 +152,7 @@ def get_list_of_champs(gamemode):
     elif gamemode == "5v5":
         class_name += "yq1p7n"
 
-    results = goodsoup.find_all(class_= class_name)
+    results = HTML_content.find_all(class_= class_name)
     list_of_champs = []
     for r in results:
         list_of_champs.append(list(dict.fromkeys(r["data-search-terms-like"].lower().split("|"))))
@@ -59,15 +160,27 @@ def get_list_of_champs(gamemode):
 
 def search_list_of_champs(searchterm, gamemode):
     champlist = get_list_of_champs(gamemode)
-    for item in champlist:
-        if searchterm in item:
-            return item[1] if len(item) == 2 else item[0]
+    for champ_alias in champlist:
+        if searchterm in champ_alias:
+            return champ_alias[1] if len(champ_alias) == 2 else champ_alias[0]
 
 def print_items(champion):
-    print(f"   Items:")
+    print("   Items:")
     for item in champion.items[0:-1]:
         print(f"....... > {item}")
     print(f" Elixir > {champion.items[-1]}")
+
+def print_runes(champion):
+    print("   Runes:")
+    print(f"..... {champion.runes[0]}:")
+    for item in champion.runes[1:5]:
+        print(f"....... > {item}")
+    print(f"..... {champion.runes[5]}:")
+    for item in champion.runes[6:8]:
+        print(f"....... > {item}")
+    print("..... Shards:")
+    for item in champion.runes[8:11]:
+        print(f"....... > {item}")
 
 def main():
     gamemode = input("Gamemode (5v5, aram): ").lower()
@@ -87,6 +200,9 @@ def main():
         print("Champion not found.")
         return   
     champion = Champion(searchterm, gamemode, role)
+    print("")
+    print_runes(champion)
+    print("")
     print_items(champion)
 
 if __name__ == "__main__":
