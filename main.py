@@ -1,4 +1,3 @@
-import enum
 import requests
 from bs4 import BeautifulSoup
 
@@ -215,6 +214,7 @@ def print_skill_order(champion):
             print(f" {s.text} ", end="")
         else:
             print(" - ", end="")
+    print("")
 
 def main():
     gamemode = input("Gamemode (5v5, aram): ").lower()
