@@ -9,8 +9,8 @@ class Champion:
         self.page = self._get_champ_page()
         self.truename = self._get_true_name()
         self.runes = self._get_runes()
-        self.items = self._get_items()
-        
+        self.starting_items = self._get_starting_items()
+        self.items = self._get_items()        
 
     def _get_champ_page(self):
         if self.gamemode == "5v5":
@@ -34,6 +34,12 @@ class Champion:
             if result:
                 champ_items.append(result[0]["alt"])
         return list(dict.fromkeys(champ_items))
+
+    def _get_starting_items(self):
+        item_build_title = self.page.find("h2", class_="_fcukao", text=f"Best {self.truename} Starting Items")
+        start_items = item_build_title.parent.find("div", class_="_dcqhsp")
+        result = start_items.find_all("img", class_="lozad")
+        return [r["alt"] for r in result]
 
     def _get_runes(self):
         rune_title = self.page.find("h2", class_="_fcukao", text=f"Best {self.truename} Runes").parent
@@ -164,6 +170,11 @@ def search_list_of_champs(searchterm, gamemode):
         if searchterm in champ_alias:
             return champ_alias[1] if len(champ_alias) == 2 else champ_alias[0]
 
+def print_starting_items(champion):
+    print("Starting:")
+    for item in champion.starting_items:
+        print(f"....... > {item}")
+
 def print_items(champion):
     print("   Items:")
     for item in champion.items[0:-1]:
@@ -203,6 +214,7 @@ def main():
     print("")
     print_runes(champion)
     print("")
+    print_starting_items(champion)
     print_items(champion)
 
 if __name__ == "__main__":
