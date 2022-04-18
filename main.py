@@ -52,7 +52,6 @@ class Champion:
             result = obj.find_all("image", class_="lozad")
             for r in result:
                 champ_runes.append(r["data-xlink-href"].split("/")[-1][:-4])
-            
         champ_runes = self._runes_lookup(champ_runes)
         return champ_runes
     
@@ -188,9 +187,8 @@ def fuzzy_champ_search(searchterm, champlist):
     flat_champlist = sum(champlist, [])
     search_results = []
     for champ_alias in flat_champlist:
-        champ = champ_alias
         ratio = difflib.SequenceMatcher(None, searchterm, champ_alias).ratio()
-        search_results.append([champ, ratio])
+        search_results.append([champ_alias, ratio])
     search_results = sorted(search_results, key=lambda l:l[1], reverse=True)
     print(f"Did you mean: {search_results[0][0]}? ({int(search_results[0][1] * 100)}%)")
     return search_results[0][0]
