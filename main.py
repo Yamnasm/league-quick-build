@@ -1,3 +1,4 @@
+import enum
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,7 +11,8 @@ class Champion:
         self.truename = self._get_true_name()
         self.runes = self._get_runes()
         self.starting_items = self._get_starting_items()
-        self.items = self._get_items()        
+        self.items = self._get_items()    
+        self.skills = self._get_skill_order()  
 
     def _get_champ_page(self):
         if self.gamemode == "5v5":
@@ -147,6 +149,17 @@ class Champion:
             else:
                 sanitised_runes_list.append(item)
         return sanitised_runes_list
+    
+    def _get_skill_order(self):
+        skill_order_title = self.page.find("h2", class_="_fcukao", text=f"Best {self.truename} Skill Order")
+        skill_order = skill_order_title.parent.find_all("td")
+        skill_table = []
+        for i, s in enumerate(skill_order):
+            if (i/19).is_integer():
+                continue
+            else:
+                skill_table.append(s)
+        return skill_table
 
 def get_list_of_champs(gamemode):
     page = requests.get(f"https://www.metasrc.com/{gamemode}")
@@ -192,6 +205,16 @@ def print_runes(champion):
     print("..... Shards:")
     for item in champion.runes[8:11]:
         print(f"....... > {item}")
+    
+def print_skill_order(champion):
+    print(" Skills:")
+    for i, s in enumerate(champion.skills):
+        if i % 18 == 0:
+            print("")
+        if s.text:
+            print(f" {s.text} ", end="")
+        else:
+            print(" - ", end="")
 
 def main():
     gamemode = input("Gamemode (5v5, aram): ").lower()
@@ -216,6 +239,8 @@ def main():
     print("")
     print_starting_items(champion)
     print_items(champion)
+    print("")
+    print_skill_order(champion)
 
 if __name__ == "__main__":
     main()
