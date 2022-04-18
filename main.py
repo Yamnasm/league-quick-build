@@ -1,3 +1,4 @@
+import difflib
 import requests
 from bs4 import BeautifulSoup
 
@@ -181,6 +182,18 @@ def search_list_of_champs(searchterm, gamemode):
     for champ_alias in champlist:
         if searchterm in champ_alias:
             return champ_alias[1] if len(champ_alias) == 2 else champ_alias[0]
+    return fuzzy_champ_search(searchterm, champlist)
+
+def fuzzy_champ_search(searchterm, champlist):
+    flat_champlist = sum(champlist, [])
+    search_results = []
+    for champ_alias in flat_champlist:
+        champ = champ_alias
+        ratio = difflib.SequenceMatcher(None, searchterm, champ_alias).ratio()
+        search_results.append([champ, ratio])
+    search_results = sorted(search_results, key=lambda l:l[1], reverse=True)
+    print(f"Did you mean: {search_results[0][0]}? ({int(search_results[0][1] * 100)}%)")
+    return search_results[0][0]
 
 def print_starting_items(champion):
     print("Starting:")
@@ -230,9 +243,6 @@ def main():
             return
 
     searchterm = search_list_of_champs(input("Search Champion: ").lower(), gamemode)
-    if searchterm == None:
-        print("Champion not found.")
-        return   
     champion = Champion(searchterm, gamemode, role)
     print("")
     print_runes(champion)
