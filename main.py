@@ -4,7 +4,7 @@ import requests
 import logging
 from bs4 import BeautifulSoup
 
-logging.basicConfig(level=logging.DEBUG, format= "%(levelname)-8s :: %(message)s")
+logging.basicConfig(level=logging.INFO, format= "%(levelname)-8s :: %(message)s")
 
 class Champion:
     def __init__(self, champ, gamemode, role):
@@ -15,8 +15,8 @@ class Champion:
         self.truename = self._get_true_name()
         self.runes = self._get_runes()
         self.starting_items = self._get_starting_items()
-        self.items = self._get_items()    
-        self.skills = self._get_skill_order()  
+        self.items = self._get_items()
+        self.skills = self._get_skill_order()
 
     def _get_champ_page(self):
         if self.gamemode == "5v5":
@@ -167,13 +167,14 @@ class Champion:
                 continue
             else:
                 skill_table.append(s)
+        logging.debug(f"Loaded {self.truename}'s Skill Table.")
         return skill_table
 
 def get_list_of_champs(gamemode):
     page = requests.get(f"https://www.metasrc.com/{gamemode}")
     HTML_content = BeautifulSoup(page.content, "html.parser")
 
-    class_name = "_95ecnz champion-grid-item _4swxwm _"
+    class_name = "_95ecnz champion-grid-item _v0k26j _"
     if gamemode == "aram":
         class_name += "c8xw44"
     elif gamemode == "5v5":
@@ -266,8 +267,9 @@ def main():
     print_skill_order(champion)
 
 def debug():
-    pass
+    print(get_list_of_champs("aram"))
+
 
 if __name__ == "__main__":
-    #main()
-    debug()
+    main()
+    #debug()
