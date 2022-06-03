@@ -1,7 +1,5 @@
-from asyncio.log import logger
-import difflib
-import requests
-import logging
+import difflib, requests, logging, argparse
+import re
 from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.INFO, format= "%(levelname)-8s :: %(message)s")
@@ -243,21 +241,25 @@ def print_skill_order(champion):
             print(" - ", end="")
     print("")
 
-def main():
-    gamemode = input("Gamemode (5v5, aram): ").lower()
-    if gamemode not in ["5v5", "aram"]:
-        print("Invalid Gamemode.")
-        return
-        
-    role = None
-    if gamemode == "5v5":
-        role = input("Role: ").lower()
-        if role not in ["top", "jungle", "mid", "adc", "support"]:
-            print("Invalid Role.")
+def main(gamemode, role, champion):
+    if gamemode == False:
+        gamemode = input("Gamemode (5v5, aram): ").lower()
+        if gamemode not in ["5v5", "aram"]:
+            print("Invalid Gamemode.")
             return
 
-    searchterm = search_list_of_champs(input("Search Champion: ").lower(), gamemode)
-    champion = Champion(searchterm, gamemode, role)
+    if role == False:
+        if gamemode == "5v5":
+            role = input("Role: ").lower()
+            if role not in ["top", "jungle", "mid", "adc", "support"]:
+                print("Invalid Role.")
+                return
+
+    if champion == False:
+        champion = input("Search Champion: ")
+
+    champion = search_list_of_champs(champion.lower(), gamemode)
+    champion = Champion(champion, gamemode, role)
     print("")
     print_runes(champion)
     print("")
@@ -269,7 +271,52 @@ def main():
 def debug():
     print(get_list_of_champs("aram"))
 
-
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    arg_group = ap.add_mutually_exclusive_group()
+
+    arg_group.add_argument(
+        "-s",
+        "--summonersrift",
+        action = "store_const",
+        const = True,
+        default = False
+        )
+
+    arg_group.add_argument(
+        "-a",
+        "--aram",
+        action = "store_const",
+        const = True,
+        default = False
+        )
+
+    ap.add_argument(
+        "-r",
+        "--role",
+        action = "store",
+        type = str,
+        required = False,
+        default = False
+        )
+
+    ap.add_argument(
+        "-c",
+        "--champ",
+        action = "store",
+        type = str,
+        required = False,
+        default = False
+        )
+    args = ap.parse_intermixed_args()
+
+    gamemode = False
+    if args.aram:
+        gamemode = "aram"
+    if args.summonersrift:
+        gamemode = "5v5"
+
+    main(gamemode, args.role, args.champ)
+    
+    #main()
     #debug()
