@@ -241,6 +241,16 @@ def print_skill_order(champion):
             print(" - ", end="")
     print("")
 
+def print_entire_build(champion, gamemode, role):
+    champion = Champion(champion, gamemode, role)
+    print("")
+    print_runes(champion)
+    print("")
+    print_starting_items(champion)
+    print_items(champion)
+    print("")
+    print_skill_order(champion)
+
 def main(gamemode, role, champion):
     if gamemode == False:
         gamemode = input("Gamemode (5v5, aram): ").lower()
@@ -259,14 +269,7 @@ def main(gamemode, role, champion):
         champion = input("Search Champion: ")
 
     champion = search_list_of_champs(champion.lower(), gamemode)
-    champion = Champion(champion, gamemode, role)
-    print("")
-    print_runes(champion)
-    print("")
-    print_starting_items(champion)
-    print_items(champion)
-    print("")
-    print_skill_order(champion)
+    print_entire_build(champion, gamemode, role)
 
 def debug():
     print(get_list_of_champs("aram"))
