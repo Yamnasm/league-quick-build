@@ -1,3 +1,6 @@
+"""
+    League Builder :D
+"""
 import difflib, requests, logging, argparse
 import re
 from bs4 import BeautifulSoup
