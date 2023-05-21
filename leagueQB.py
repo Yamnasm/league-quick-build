@@ -1,4 +1,6 @@
-import difflib, requests, logging, argparse, json
+import arg_parser
+import difflib, requests, logging, json
+
 from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.INFO, format= "%(levelname)-8s :: %(message)s")
@@ -66,95 +68,13 @@ class Champion:
         return champ_runes
     
     def _runes_lookup(self, runes_list):
-        runes_lookup_table = {
-            "8000": "Precision",
-            "8100": "Domination",
-            "8200": "Sorcery",
-            "8300": "Inspiration",
-            "8400": "Resolve",
+        with open("runes_lookup.json", "r") as file:
+            runes_lookup_dict = json.load(file)
 
-            # Precision
-            "conqueror": "Conqueror",
-            "triumph": "Triumph",
-            "legendtenacity": "Legend: Tenacity",
-            "laststand": "Last Stand",
-            "legendalacrity": "Legend: Alacrity",
-            "coupdegrace": "Coup de Grace",
-            "presenceofmind": "Presence of Mind",
-            "lethaltempotemp": "Lethal Tempo",
-            "cutdown": "Cut Down",
-            "fleetfootwork": "Fleet Footwork",
-            "legendbloodline": "Legend: Bloodline",
-            "presstheattack": "Press The Attack",
-            "overheal": "Overheal",
-
-            # Domination
-            "greenterror_tasteofblood": "Taste of Blood",
-            "treasurehunter": "Treasure Hunter",
-            "cheapshot": "Cheap Shot",
-            "ultimatehunter": "Ultimate Hunter",
-            "eyeballcollection": "Eyeball Collection",
-            "relentlesshunter": "Relentless Hunter",
-            "hailofblades": "Hail of Blades",
-            "suddenimpact": "Sudden Impact",
-            "electrocute": "Electrocute",
-            "darkharvest": "Dark Harvest",
-            "ghostporo": "Ghost Poro",
-            "ingenioushunter": "Ingenious Hunter",
-            "predator": "Predator",
-            "zombieward": "Zombie Ward",
-
-            # Sorcery
-            "arcanecomet": "Arcane Comet",
-            "manaflowband": "Manaflow Band",
-            "transcendence": "Transcendence",
-            "scorch": "Scorch",
-            "gatheringstorm": "Gathering Storm",
-            "phaserush": "Phase Rush",
-            "summonaery": "Summon Aery",
-            "absolutefocus": "Absolute Focus",
-            "celerity": "Celerity",
-            "nimbuscloak": "Nimbus Cloak",
-            "nullifyingorb": "Nullifying Orb",
-            "waterwalking": "Water Walking",
-
-            # Inspiration
-            "cosmicinsight": "Cosmic Insight",
-            "biscuitdelivery": "Biscuit Delivery",
-            "firststrike": "First Strike",
-            "futuresmarket": "Futures Market",
-            "glacialaugment": "Glacial Augment",
-            "hextechflashtraption": "Hextech Flashtraption",
-            "magicalfootwear": "Magical Footwear",
-            "miniondematerializer": "Minion Dematerializer",
-            "perfecttiming": "Perfect Timing",
-            "timewarptonic": "Time Warp Tonic",
-            "approachvelocity": "Approach Velocity",
-
-            # Resolve
-            "veteranaftershock": "Aftershock",
-            "demolish": "Demolish",
-            "conditioning": "Conditioning",
-            "overgrowth": "Overgrowth",
-            "revitalize": "Revitalize",
-            "secondwind": "Second Wind",
-            "unflinching": "Unflinching",
-            "boneplating": "Bone Plating",
-            "fontoflife": "Font of Life",
-            "graspoftheundying": "Grasp of the Undying",
-            "guardian": "Guardian",
-
-            # Shards
-            "statmodsadaptiveforceicon": "Adaptive Force",
-            "statmodsarmoricon": "Armor",
-            "statmodsattackspeedicon": "Attack Speed",
-            "statmodscdrscalingicon": "Cooldown Reduction",
-            "statmodshealthscalingicon": "Health"
-        }
         sanitised_runes_list = []
         for item in runes_list:
-            if item in runes_lookup_table:
-                sanitised_runes_list.append(runes_lookup_table[item])
+            if item in runes_lookup_dict:
+                sanitised_runes_list.append(runes_lookup_dict[item])
             else:
                 sanitised_runes_list.append(item)
         return sanitised_runes_list
@@ -175,11 +95,14 @@ def get_list_of_champs(gamemode):
     page = requests.get(f"https://www.metasrc.com/{gamemode}")
     HTML_content = BeautifulSoup(page.content, "html.parser")
 
-    class_name = "_95ecnz champion-grid-item _v0k26j _"
+    class_suffix = ""
+    
     if gamemode == "aram":
-        class_name += "c8xw44"
+        class_suffix = "c8xw44"
     elif gamemode == "5v5":
-        class_name += "yq1p7n"
+        class_suffix = "yq1p7n"
+
+    class_name = f"_95ecnz champion-grid-item _v0k26j _{class_suffix}"
 
     results = HTML_content.find_all(class_= class_name)
     list_of_champs = []
@@ -254,7 +177,7 @@ def print_entire_build(champion, gamemode, role):
     print("")
     print_skill_order(champion)
 
-def main(gamemode, role, champion):
+def user_input(gamemode, role, champion):
     if gamemode == False:
         gamemode = input("Gamemode (5v5, aram): ").lower()
         if gamemode not in ["5v5", "aram"]:
@@ -277,52 +200,15 @@ def main(gamemode, role, champion):
 def debug():
     print(get_list_of_champs("aram"))
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    arg_group = ap.add_mutually_exclusive_group()
-
-    arg_group.add_argument(
-        "-s",
-        "--summonersrift",
-        action = "store_const",
-        const = True,
-        default = False
-        )
-
-    arg_group.add_argument(
-        "-a",
-        "--aram",
-        action = "store_const",
-        const = True,
-        default = False
-        )
-
-    ap.add_argument(
-        "-r",
-        "--role",
-        action = "store",
-        type = str,
-        required = False,
-        default = False
-        )
-
-    ap.add_argument(
-        "-c",
-        "--champ",
-        action = "store",
-        type = str,
-        required = False,
-        default = False
-        )
-    args = ap.parse_intermixed_args()
+def main():
+    args = arg_parser.create_parser()
 
     gamemode = False
     if args.aram:
         gamemode = "aram"
     if args.summonersrift:
         gamemode = "5v5"
+    user_input(gamemode, args.role, args.champ)
 
-    main(gamemode, args.role, args.champ)
-    
-    #main()
-    #debug()
+if __name__ == "__main__":
+    main()
