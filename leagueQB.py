@@ -92,7 +92,7 @@ class Champion:
         return skill_table
 
 def get_list_of_champs(gamemode):
-    page = requests.get(f"https://www.metasrc.com/{gamemode}")
+    page = requests.get(f"https://www.metasrc.com/lol/{gamemode}")
     HTML_content = BeautifulSoup(page.content, "html.parser")
 
     class_suffix = ""
