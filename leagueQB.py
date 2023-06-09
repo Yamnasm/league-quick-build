@@ -3,7 +3,7 @@ import difflib, requests, logging, json
 
 from bs4 import BeautifulSoup
 
-logging.basicConfig(level=logging.DEBUG, format= "%(levelname)-8s :: %(message)s")
+logging.basicConfig(level=logging.INFO, format= "%(levelname)-8s :: %(message)s")
 
 with open("metasrc_paths.json", "r") as file:
     PATHS = json.load(file)
