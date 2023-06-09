@@ -1,7 +1,8 @@
 {
-    "truename": "#page-content > div:nth-child(1) > div:nth-child(1) > div > h2",
-    "startingitems": "#page-content > div:nth-child(1) > div:nth-child(2) > div > h2",
-    "items": "#page-content > div:nth-child(2) > div._je89v2-3._cn8bui > div:nth-child(1) > h2",
-    "runes": "#page-content > div:nth-child(2) > div:nth-child(1) > div > h2",
-    "skillorder": "#page-content > div:nth-child(2) > div._je89v2-3._cn8bui > div:nth-child(2) > h2"
+    "truename": "#page-content > div:nth-child(1) > div:nth-child(1) > section > div > h3",
+    "startingitems": "#page-content > div:nth-child(1) > div:nth-child(2) > section",
+    "items": "#page-content > div:nth-child(2) > div._je89v2-3._cn8bui > section:nth-child(1) > div",
+    "runes": "#page-content > div:nth-child(2) > div:nth-child(1) > section",
+    "skillorder": "#page-content > div:nth-child(2) > div._je89v2-3._cn8bui > section:nth-child(2)"
 }
+
