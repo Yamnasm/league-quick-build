@@ -76,5 +76,5 @@
     "statmodsmagicresicon.magicresist_fix": "Magic Resist",
     "statmodsattackspeedicon": "Attack Speed",
     "statmodscdrscalingicon": "Cooldown Reduction",
-    "statmodshealthscalingicon": "Health"
+    "statmodshealthplusicon": "Health Scaling"
 }
