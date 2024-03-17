@@ -9,18 +9,12 @@ logging.basicConfig(
     level=logging.INFO,
     format= "%(levelname)-8s :: %(message)s")
 
-def get_champ_list(gamemode):
-    page = requests.get(f"https://www.metasrc.com/lol/{gamemode}")
+# cannot use the ddragon import in directory due to differences on metasrc
+def get_champ_list():
+    page = requests.get(f"https://www.metasrc.com/lol/")
     HTML_content = BeautifulSoup(page.content, "html.parser")
 
-    class_suffix = ""
-    
-    if gamemode == "aram":
-        class_suffix = "c8xw44"
-    elif gamemode == "5v5":
-        class_suffix = "yq1p7n"
-
-    class_name = f"_95ecnz champion-grid-item _v0k26j _{class_suffix}"
+    class_name = f"_95ecnz champion-grid-item _v0k26j _yq1p7n"
 
     results = HTML_content.find_all(class_= class_name)
     list_of_champs = []
@@ -32,9 +26,9 @@ def get_champ_list(gamemode):
     logging.debug(f"Loaded {len(list_of_champs)} champions.")
     return list_of_champs
 
-def search_champ_list(searchterm, gamemode):
+def search_champ_list(searchterm):
     logging.debug(f"Searching for champion: {searchterm}.")
-    champlist = get_champ_list(gamemode)
+    champlist = get_champ_list()
 
     for champ_alias in champlist:
         if searchterm in champ_alias:
@@ -120,7 +114,7 @@ def user_input(gamemode, role, champion):
     if champion == False:
         champion = input("Search Champion: ")
 
-    champion = search_champ_list(champion.lower(), gamemode)
+    champion = search_champ_list(champion.lower())
     print_entire_build(champion, gamemode, role)
 
 def main():

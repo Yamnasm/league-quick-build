@@ -1,3 +1,7 @@
+settings.json
+
+# datadragon dump of champion information
+raw_champs.json
 __pycache__/
 *.py[cod]
 *$py.class
